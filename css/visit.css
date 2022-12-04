@@ -1,0 +1,94 @@
+*{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    min-height: 100vh;
+    background-color: rgb(228, 228, 228)
+}
+
+.nana{
+    display:flex;
+    height: 70px;
+    background-color: #079dd8;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px ;
+    color:white;
+}
+
+.name_project{
+    color:white;
+    font-size:25px;
+    text-decoration:none;
+}
+
+.nana ul{
+    display: flex;
+    list-style-type: none; 
+}
+
+.nana li:nth-child(2){
+    margin-left: 20px;
+}
+
+.logout{
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.contain{
+    display:flex;
+    flex-direction: column;
+    padding:20px 90px;
+}
+
+.account{
+    display:flex;
+    padding:20px 0;
+    justify-content: space-between;
+}
+
+.count_visitor{
+    display:flex;
+    justify-content: space-between;
+    padding:20px 30px;
+    color: white;
+}
+
+.icon{
+    display: flex;
+    align-items: center;
+}
+
+.icon i{
+    font-size: 40px;
+}
+
+.number{
+    display: flex;
+    flex-direction: column;
+    padding: 5px 20px;
+    margin-left: 30px;
+}
+
+.number span{
+    font-size: 30px;
+}
+
+.number span:nth-child(2){
+    display: flex;
+    justify-content: center;
+}
+
+.cont_table{
+    display: flex;
+    margin-top: 20px;
+    background-color: white;
+}
