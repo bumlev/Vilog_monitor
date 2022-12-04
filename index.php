@@ -107,7 +107,6 @@
             'visitors.class.php',
             donnees,
             function(data){
-              console.log(data);
               var data = data ? $.parseJSON(data):data;
               if(data.error)
                 $("#error_search_IdNumber").css("display" , "inline").text( data.error.IdNumber ? data.error.IdNumber : "")
@@ -141,7 +140,6 @@
 
         $('#register').on('click' , function(e){
             e.preventDefault();
-            console.log($("input[name='visitor']").val())
             var donnees = {
               firstname:$("input[name='firstname']").val(), 
               lastname:$("input[name='lastname']").val(), 
