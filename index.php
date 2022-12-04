@@ -207,7 +207,6 @@
             'visitors.class.php',
             donnees,
             function(data){
-              console.log(data);
                 $("#disconnect").hide(900);
                 $('input').val("")
                 $('#error_search_IdNumber').text("");
