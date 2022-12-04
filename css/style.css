@@ -71,6 +71,16 @@ body {
     margin-top:30px
 }
 
+.error_search{
+    text-align: center;
+    color:rgb(126, 41, 41);
+    font-size:13px;
+    display: none;
+    margin-top:55px;
+    right:58%;
+    position: absolute;
+}
+
 .signup h1{
     color:white;
     text-align: center;
@@ -130,7 +140,6 @@ body {
 .search{
     display: flex;
     flex-direction: column;
-    border:1px  solid rgb(236, 236, 236);
     padding:30px 10px 30px 10px;
 }
 
@@ -164,7 +173,7 @@ body {
 
 .action{
     display:flex;
-    margin-top:20px;
+    margin-top:40px;
 }
 .action_login{
     border-right:1px  solid rgb(236, 236, 236);

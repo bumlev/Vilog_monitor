@@ -26,7 +26,9 @@
         <div id="search" class="search">
             <form id="search_id" action="#" class="search_id">
               <input id="IdNumber_search" placeholder="Enter your ID Number ..." type="text">
+              <span id="error_search_IdNumber" class="error_search"></span>
               <button id="search_button" name="search">Search</button>
+              <button id="disconnect" name="disconnect">Disconnect</button>
             </form>
             <div id="action" class="action">
               <div class="action_login"><span>are you a user ?</span><a id="action_login" href="#">login</a></div>
@@ -65,6 +67,7 @@
         </form> 
         <div id="thank" class="search">
             <h1 style="color: vert">Thank you !</h1>
+            <button id="back" name="search">Back</button>
         </div>
     </div>
 
@@ -73,6 +76,7 @@
         $('#signin').hide();
         $('#signup').hide();
         $("#thank").hide();
+        $("#disconnect").hide();
         $('#present').on('click' , function(e){
           e.preventDefault();
           var donnees = {
@@ -103,18 +107,32 @@
             'visitors.class.php',
             donnees,
             function(data){
-              data = $.parseJSON(data)
-              $("input[name='visitor']").val(data[0]);
-              $("input[name='firstname']").val(data.firstname); 
-              $("input[name='lastname']").val(data.lastname); 
-              $("input[name='email']").val(data.email);
-              $("#role").val(data.roleId).change();
-              $("input[name='IdNumber']").val(data.IdNumber); 
-              $("input[name='phone']").val(data.PhoneNumber);
-              $('#search').hide(800);
-              $("#register").css('display' , 'none');
-              $("#present").css('display' , 'inline');
-              $('#signup').show({direction : 'right' } , 900 );
+              console.log(data);
+              var data = data ? $.parseJSON(data):data;
+              if(data.error)
+                $("#error_search_IdNumber").css("display" , "inline").text( data.error.IdNumber ? data.error.IdNumber : "")
+              else if(data === false)
+                $("#error_search_IdNumber").css("display" , "inline").text( "You are not found ...");
+              else if(data.connected == 1){
+                $("#IdNumber_search").hide(900);
+                $("#search_button").hide(900);
+                $('#error_search_IdNumber').text("");
+                $("input[name='visitor']").val(data[0]);
+                $("#disconnect").show({direction : 'right' } , 900);
+              }
+              else{
+                $("input[name='visitor']").val(data[0]);
+                $("input[name='firstname']").val(data.firstname); 
+                $("input[name='lastname']").val(data.lastname); 
+                $("input[name='email']").val(data.email);
+                $("#role").val(data.roleId).change();
+                $("input[name='IdNumber']").val(data.IdNumber); 
+                $("input[name='phone']").val(data.PhoneNumber);
+                $('#search').hide(800);
+                $("#register").css('display' , 'none');
+                $("#present").css('display' , 'inline');
+                $('#signup').show({direction : 'right' } , 900 );
+              }
             }
           )
         });
@@ -175,6 +193,31 @@
         $('#action_login').on('click' , function(e){
           $('#search').hide(800);
           $('#signin').show({direction : 'right' } , 900 );
+        })
+
+        $('#back').on('click' , function(e){
+          e.preventDefault();
+          $("input, textarea , select ").val("");
+          $('#thank').hide(800);
+          $('#search').show({direction : 'left' } , 900 );
+        })
+
+        $("#disconnect").on('click' , function(e){
+          e.preventDefault();
+          var donnees = {visitor: $("input[name='visitor']").val() , disconnect: $("#disconnect").text()};
+          //console.log(donnees)
+          $.post(
+            'visitors.class.php',
+            donnees,
+            function(data){
+              console.log(data);
+                $("#disconnect").hide(900);
+                $('input').val("")
+                $('#error_search_IdNumber').text("");
+                $("#IdNumber_search").show({direction : 'right' } , 900);
+                $("#search_button").show({direction : 'right' } , 900);
+            }
+          )
         })
       })
 

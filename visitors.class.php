@@ -88,7 +88,6 @@ class visitors{
 
     // Update a visitor
     public function updateVisitor($id){
-        echo json_encode($id);
         $requete= $this->db->prepare('UPDATE visitors set firstname=:firstname , lastname=:lastname , email=:email , roleId=:roleId , IdNumber=:idnumb , PhoneNumber=:phone , connected=:connected
          WHERE id=:id');
 
@@ -99,6 +98,14 @@ class visitors{
             'roleId'=>$this->roleId(),
             'idnumb'=>$this->IdNumber(),
             'phone'=>$this->PhoneNumber(),
+            'connected'=>$this->connected(),
+            'id'=>$id
+        ));
+    }
+
+    public function disconnect($id){
+        $requete = $this->db->prepare('UPDATE visitors set connected=:connected WHERE id=:id');
+        $requete->execute(array(
             'connected'=>$this->connected(),
             'id'=>$id
         ));
@@ -155,6 +162,9 @@ class visitors{
     }elseif(empty($error) && isset($_POST['present'])){
         $visitors->setconnected(1);
         $visitors->updateVisitor($_POST['visitor']);
+    }elseif(empty($error) && isset($_POST['disconnect'])){
+        $visitors->setconnected(0);
+        $visitors->disconnect($_POST['visitor']);
     }   
     elseif(!empty($error)){
         $Error['error'] = $error;
