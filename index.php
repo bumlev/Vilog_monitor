@@ -203,7 +203,6 @@
         $("#disconnect").on('click' , function(e){
           e.preventDefault();
           var donnees = {visitor: $("input[name='visitor']").val() , disconnect: $("#disconnect").text()};
-          //console.log(donnees)
           $.post(
             'visitors.class.php',
             donnees,
