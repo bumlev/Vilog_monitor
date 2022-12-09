@@ -15,9 +15,13 @@
     <title>Vilog - List of visitors</title>
   </head>
   <body>
+        <?php 
+           include_once 'objet.php';
+           include_once 'visitors.class.php';
+        ?>
         <nav class="nana">
               <a class="name_project" href="#"><i class="fa fa-desktop"></i>  ViLog</a>
-              <ul>
+              <ul class="list">
                 <li>Bumwe Levy</li>
                 <li><a class="logout" href="#">logout</a></li>
               </ul>
@@ -47,34 +51,35 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
+                    <th scope="col">Firstname</th>
+                    <th scope="col">Lastname</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">IdNumber</th>
+                    <th scope="col">PhoneNumber</th>
+                    <th scope="col">Time in</th>
+                    <th scope="col">Time out</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Larry</td>
-                    <td>the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
+                  <?php 
+                    $visitors->list_visitors();
+                  ?>
                 </tbody>
               </table>
             </div>
         </div>
   </body>
   </html>
+
+  <script>
+      $(document).ready(function(){
+        $('.donnee').each(function(e){
+          $(this).on('click' , function(e){
+            e.preventDefault();
+            console.log(e);
+          })
+        })
+      })
+
+  </script>

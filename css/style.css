@@ -62,6 +62,12 @@ body {
     font-size:13px;
     display: none;
 }
+.signin span{
+    margin-left:20px;
+    color:rgb(126, 41, 41);
+    font-size:13px;
+    display: none;
+}
 
 .error_message{
     text-align: center;

@@ -18,7 +18,7 @@ body {
     background-color: #079dd8;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px ;
+    padding:0 20px ;
     color:white;
 }
 
@@ -28,9 +28,10 @@ body {
     text-decoration:none;
 }
 
-.nana ul{
+.list{
     display: flex;
     list-style-type: none; 
+    margin:auto 0;
 }
 
 .nana li:nth-child(2){
@@ -46,7 +47,7 @@ body {
 .contain{
     display:flex;
     flex-direction: column;
-    padding:20px 90px;
+    padding:20px 20px;
 }
 
 .account{
@@ -91,4 +92,23 @@ body {
     display: flex;
     margin-top: 20px;
     background-color: white;
+    font-size: 15px;
+}
+
+.edit_button{
+    padding:5px 20px 5px 20px;
+    border-radius: 5px;
+    border:1px solid transparent ;
+    background-color: rgb(26, 155, 241);
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+.del_button{
+    padding:1px 20px 1px 20px;
+    border-radius: 5px;
+    border:1px solid transparent ;
+    background-color: red;
+    color: white;
+    font-weight: 600;
 }

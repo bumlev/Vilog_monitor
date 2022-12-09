@@ -93,6 +93,7 @@
             'visitors.class.php',
             donnees,
             function(data){
+              console.log(data);
               $('#signup').hide(800);
               $('#thank').show({direction : 'right' } , 900);
             }
@@ -155,6 +156,7 @@
               donnees,
               function(data){
                 var err = data ? $.parseJSON(data):data;
+                console.log(err);
                 if(err.error){
                   $('#error_firstname').css("display" , "inline").text( err.error.firstname ? err.error.firstname : "");
                   $('#error_lastname').css("display" , "inline").text( err.error.lastname ? err.error.lastname : "");
