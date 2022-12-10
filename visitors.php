@@ -22,11 +22,16 @@
         <nav class="nana">
               <a class="name_project" href="#"><i class="fa fa-desktop"></i>  ViLog</a>
               <ul class="list">
-                <li>Bumwe Levy</li>
-                <li><a class="logout" href="#">logout</a></li>
+                <li><?php echo $_SESSION['firstname'].'  '.$_SESSION['lastname'] ?></li>
+                <li><a id="logout" class="logout" href="#">logout</a></li>
               </ul>
         </nav>
-
+        <?php  
+          if(!isset($_SESSION['firstname']) && !isset($_SESSION['lastname'])){
+           // session_destroy();
+            echo '<script>document.location.href="index.php"</script>';
+          }
+        ?>
         <div class="contain">
             <div class="account">
                 <div style="background-color:#00B4DB" class="count_visitor">
@@ -74,11 +79,24 @@
 
   <script>
       $(document).ready(function(){
-        $('.donnee').each(function(e){
+        $('.del_button').each(function(e){
           $(this).on('click' , function(e){
             e.preventDefault();
             console.log(e);
-          })
+          });
+        });
+
+        $('#logout').on('click' , function(e){
+          e.preventDefault();
+          var donnees ={logout:$(this).text()}
+          $.post(
+            'visitors.class.php',
+            donnees,
+            function(data){
+              if(data)
+                window.location.href=" http://localhost/Vilog/";
+            }
+          )
         })
       })
 

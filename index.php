@@ -62,8 +62,11 @@
         <form action="#" id="signin" class="signin">
             <h1>Login</h1>
             <input placeholder="Enter an email ..." type="email" name="email_login">
+            <span id="error_login_email" class="error"></span>
             <input placeholder="Enter password ..." type="password" name="password_login">
-            <button id="login" class="register"> Login</button>
+            <span id="error_login_password" class="error"></span>
+            <span id="error_login_message" class="error_message"></span>
+            <button id="login" name="login" class="register"> Login</button>
         </form> 
         <div id="thank" class="search">
             <h1 style="color: vert">Thank you !</h1>
@@ -137,8 +140,6 @@
           )
         });
 
-
-
         $('#register').on('click' , function(e){
             e.preventDefault();
             var donnees = {
@@ -178,29 +179,55 @@
 
         $('#login').on('click' , function(e){
             e.preventDefault();
-            $("input, textarea , select ").val("");
+            var donnees ={
+              email:$("input[name='email_login']").val(),
+              password:$("input[name='password_login']").val(),
+              login:$("input[name='login']").text()
+            }
+
+            $.post(
+              'visitors.class.php',
+              donnees,
+              function(data){
+                console.log(data);
+                var err = data ? $.parseJSON(data) : data ;
+                if(err.error){
+                  $("span").text("");
+                  $("#error_login_email").css("display" , "inline").text(err.error.email ? err.error.email :"");
+                  $("#error_login_password").css("display" , "inline").text(err.error.password ? err.error.password :"");
+                }else if(err == true){
+                  $("span").text("");
+                  window.location.href="http://localhost/Vilog/visitors.php";
+                }else if(err == false){
+                  $("span").text("");
+                  $("#error_login_message").css("display" , "inline").text("Your email or password is incorrect");
+                }
+              }
+            )
+
+            /*$("input, textarea , select ").val("");
             $('#signin').hide(800);
-            $('#signup').show('slide' , {direction : 'left' } ,900);
-        })
+            $('#signup').show('slide' , {direction : 'left' } ,900);*/
+        });
 
 
         $('#action_register').on('click' , function(e){
           $("input, textarea , select ").val("");
           $('#search').hide(800);
           $('#signup').show({direction : 'right' } , 900 );
-        })
+        });
 
         $('#action_login').on('click' , function(e){
           $('#search').hide(800);
           $('#signin').show({direction : 'right' } , 900 );
-        })
+        });
 
         $('#back').on('click' , function(e){
           e.preventDefault();
           $("input, textarea , select ").val("");
           $('#thank').hide(800);
           $('#search').show({direction : 'left' } , 900 );
-        })
+        });
 
         $("#disconnect").on('click' , function(e){
           e.preventDefault();
@@ -216,7 +243,7 @@
                 $("#search_button").show({direction : 'right' } , 900);
             }
           )
-        })
+        });
       })
 
     </script>

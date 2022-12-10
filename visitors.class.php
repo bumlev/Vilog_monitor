@@ -3,6 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
+session_start();
 
 class visitors{
     private $firstname;
@@ -46,23 +47,23 @@ class visitors{
 
     // create a Visitor
     public function createVisitor(){
-        $requete = $this->db->prepare('SELECT COUNT(*) as nb FROM  visitors WHERE IdNumber=:idnumb or email=:email or PhoneNumber =:phone AND  PhoneNumber !="" LIMIT 1');
-        $requete->execute(array(
+        $request = $this->db->prepare('SELECT COUNT(*) as nb FROM  visitors WHERE IdNumber=:idnumb or email=:email or PhoneNumber =:phone AND  PhoneNumber !="" LIMIT 1');
+        $request->execute(array(
             'idnumb'=>$this->IdNumber(),
             'email'=>$this->email(),
             'phone'=>$this->PhoneNumber()
         ));
 
-        $lignes = $requete->fetch();
-        $row = $lignes['nb'];
+        $lines = $request->fetch();
+        $row = $lines['nb'];
 
         if($row == 0)
         {
             $actual_date = date('y-m-d h:i:s' , strtotime('now'));
             try{
-                $requete = $this->db->prepare('INSERT INTO visitors (firstname , lastname , email , roleId , IdNumber , PhoneNumber , connected) VALUES(:firstname , :lastname , :email , :roleId , :IdNumber , :PhoneNumber , :connected)
+                $request = $this->db->prepare('INSERT INTO visitors (firstname , lastname , email , roleId , IdNumber , PhoneNumber , connected) VALUES(:firstname , :lastname , :email , :roleId , :IdNumber , :PhoneNumber , :connected)
                 ');
-                $requete->execute(array(
+                $request->execute(array(
                     'firstname'=>$this->firstname(),
                     'lastname'=>$this->lastname(),
                     'email'=>$this->email(),
@@ -74,8 +75,8 @@ class visitors{
 
                 $visitor_id = $this->db->lastInsertId();
                 
-                $requete = $this->db->prepare('INSERT  INTO timesvisit (visitor_id , created_at)  VALUES(:visitor_id , :created_at) ');
-                $requete->execute(array(
+                $request = $this->db->prepare('INSERT  INTO timesvisit (visitor_id , created_at)  VALUES(:visitor_id , :created_at) ');
+                $request->execute(array(
                     'created_at'=> $actual_date,
                     'visitor_id'=> $visitor_id
                 ));
@@ -93,26 +94,26 @@ class visitors{
 
     // search a visitor
     public function searchVisitor(){
-        $requete = $this->db->prepare('SELECT * FROM visitors as Visitors
+        $request = $this->db->prepare('SELECT * FROM visitors as Visitors
         LEFT JOIN roles as Roles 
         ON Visitors.roleId = Roles.id
         WHERE IdNumber=:idnumber LIMIT 1');
 
-        $requete->execute(array(
+        $request->execute(array(
             'idnumber'=>$this->IdNumber()
         ));
 
-        $donnees = $requete->fetch();
-        echo json_encode($donnees);
+        $datas = $request->fetch();
+        echo json_encode($datas);
     }
 
     // Update a visitor
     public function updateVisitor($id){
         $actual_date = date('y-m-d h:i:s' , strtotime('now'));
-        $requete= $this->db->prepare('UPDATE visitors set firstname=:firstname , lastname=:lastname , email=:email , roleId=:roleId , IdNumber=:idnumb , PhoneNumber=:phone , connected=:connected
+        $request= $this->db->prepare('UPDATE visitors set firstname=:firstname , lastname=:lastname , email=:email , roleId=:roleId , IdNumber=:idnumb , PhoneNumber=:phone , connected=:connected
          WHERE id=:id');
 
-        $requete->execute(array(
+        $request->execute(array(
             'firstname'=>$this->firstname(),
             'lastname'=>$this->lastname(),
             'email'=>$this->email(),
@@ -123,8 +124,8 @@ class visitors{
             'id'=>$id
         ));
 
-        $requete = $this->db->prepare('INSERT  INTO timesvisit (visitor_id , created_at)  VALUES(:id , :created_at)');
-        $requete->execute(array(
+        $request = $this->db->prepare('INSERT  INTO timesvisit (visitor_id , created_at)  VALUES(:id , :created_at)');
+        $request->execute(array(
             'created_at'=>$actual_date,
             'id'=>$id
         ));
@@ -136,26 +137,26 @@ class visitors{
     /// Disconnect a visitor
     public function disconnect($id){
         $actual_date = date('y-m-d h:i:s' , strtotime('now'));
-        $requete = $this->db->prepare('UPDATE visitors set connected=:connected WHERE id=:id');
-        $requete->execute(array(
+        $request = $this->db->prepare('UPDATE visitors set connected=:connected WHERE id=:id');
+        $request->execute(array(
             'connected'=>$this->connected(),
             'id'=>$id
         ));
 
-        $requete = $this->db->prepare('UPDATE timesvisit set updated_at=:updated_at WHERE visitor_id=:id AND updated_at IS NULL');
-        $requete->execute(array(
+        $request = $this->db->prepare('UPDATE timesvisit set updated_at=:updated_at WHERE visitor_id=:id AND updated_at IS NULL');
+        $request->execute(array(
             'updated_at'=>$actual_date,
             'id'=>$id
         ));
 
-        $requete = $this->db->prepare('SELECT * FROM visitors WHERE id=:id LIMIT 1');
-        $requete->execute(array(
+        $request = $this->db->prepare('SELECT * FROM visitors WHERE id=:id LIMIT 1');
+        $request->execute(array(
             'id'=>$id
         ));
 
         $body = 'Hi, you are deconnected';
-        $donnees = $requete->fetch();
-        $this->sendEmail($donnees['email'] , $body);
+        $datas = $request->fetch();
+        $this->sendEmail($datas['email'] , $body);
     }
 
     /// Send Email
@@ -193,25 +194,25 @@ class visitors{
 
     /// List of visitors
     public function list_visitors(){
-        $requete = $this->db->prepare('SELECT * FROM visitors as Visitors
+        $request = $this->db->prepare('SELECT * FROM visitors as Visitors
         LEFT JOIN roles as Roles 
         ON Visitors.roleId = Roles.id
         LEFT JOIN timesvisit as visits
         ON Visitors.id = visits.visitor_id
         ');
-        $requete->execute();
-        while($donnees = $requete->fetch()){
+        $request->execute();
+        while($datas = $request->fetch()){
             ?>
                 <tr>
-                    <td><?php echo $donnees['firstname']; ?></td>
-                    <td><?php echo $donnees['lastname']; ?></td>
-                    <td><?php echo $donnees['name']; ?></td>
-                    <td><?php echo $donnees['email']; ?></td>
-                    <td><?php echo $donnees['IdNumber']; ?></td>
-                    <td><?php echo $donnees['PhoneNumber']; ?></td>
-                    <td><?php echo $donnees['created_at']; ?></td>
-                    <td><?php echo $donnees['updated_at'] === null ? 'Pending ...' : $donnees['updated_at'] ?></td>
-                    <td><a href="edit_visitor.php?id=<?=md5($donnees[0])?>" class="edit_button">Edit</button></td><td><button class="del_button">Delete</button></td>
+                    <td><?php echo $datas['firstname']; ?></td>
+                    <td><?php echo $datas['lastname']; ?></td>
+                    <td><?php echo $datas['name']; ?></td>
+                    <td><?php echo $datas['email']; ?></td>
+                    <td><?php echo $datas['IdNumber']; ?></td>
+                    <td><?php echo $datas['PhoneNumber']; ?></td>
+                    <td><?php echo $datas['created_at']; ?></td>
+                    <td><?php echo $datas['updated_at'] === null ? 'Pending ...' : $datas['updated_at'] ?></td>
+                    <td><a href="edit_visitor.php?id=<?=md5($datas[0])?>" class="edit_button">Edit</a></td><td><button class="del_button">Delete</button></td>
                 </tr>
             <?php
         }
@@ -219,21 +220,49 @@ class visitors{
 
     //// Get a visitor
     public function getvisitor($id){
-        $requete=$this->db->prepare('SELECT * FROM visitors WHERE md5(id)=:id LIMIT 1');
-        $requete->execute(array(
+        $request=$this->db->prepare('SELECT * FROM visitors WHERE md5(id)=:id LIMIT 1');
+        $request->execute(array(
             'id'=>$id
         ));
-        return  $requete->fetch();
+        return  $request->fetch();
     }
 
     //Be a User
     public function BeUser($id){
-        $requete = $this->db->prepare('UPDATE visitors SET  password=:password , authenticated=:authenticated WHERE md5(id)=:id');
-        $requete->execute(array(
+        $request = $this->db->prepare('UPDATE visitors SET  password=:password , authenticated=:authenticated WHERE md5(id)=:id');
+        $request->execute(array(
             'id' =>$id,
             'password'=>$this->password(),
             'authenticated'=>$this->authenticated()
         ));
+        echo json_encode(true);
+    }
+
+    /// login as user 
+    public function login(){
+        $request = $this->db->prepare('SELECT * FROM visitors WHERE email=:email AND password=:password LIMIT 1');
+        $request->execute(array(
+            'email'=>$this->email(),
+            'password'=>$this->password()
+        ));
+        $datas = $request->fetch();
+        $row = $request->rowCount();
+        if($row > 0){
+            $_SESSION['id']= $datas['id'];
+            $_SESSION['firstname']= $datas['firstname'];
+            $_SESSION['lastname']= $datas['lastname'];
+            echo json_encode(true);
+        }
+        else
+            echo json_encode(false);
+    }
+
+    //logout
+    public function logout(){
+        session_destroy();
+        unset($_SESSION['id']);
+        unset($_SESSION['firstname']);
+        unset($_SESSION['lastname']);
         echo json_encode(true);
     }
 }
@@ -310,6 +339,13 @@ class visitors{
         $visitors->setpassword($_POST['password']);
         $visitors->setauthenticated(2);
         $visitors->BeUser($_POST['visitor']);
+    }elseif(empty($error) && isset($_POST['login'])){
+
+        $visitors->setemail($_POST['email']);
+        $visitors->setpassword($_POST['password']);
+        $visitors->login();
+    }elseif(empty($error) && isset($_POST['logout'])){
+        $visitors->logout();
     }   
     elseif(!empty($error)){
         $Error['error'] = $error;
