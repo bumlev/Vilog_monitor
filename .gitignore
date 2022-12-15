@@ -1,3 +1,4 @@
 #ignore php mailer
 
 /PHPMailer-master
+/phpqrcode

@@ -22,13 +22,14 @@
         <nav class="nana">
               <a class="name_project" href="#"><i class="fa fa-desktop"></i>  ViLog</a>
               <ul class="list">
+                <li><a id="visitors" href="#">Visitors</a></li>
+                <li><a id="employees" href="#">Employees</a></li>
                 <li><?php echo $_SESSION['firstname'].'  '.$_SESSION['lastname'] ?></li>
                 <li><a id="logout" class="logout" href="#">logout</a></li>
               </ul>
         </nav>
         <?php  
           if(!isset($_SESSION['firstname']) && !isset($_SESSION['lastname'])){
-           // session_destroy();
             echo '<script>document.location.href="index.php"</script>';
           }
         ?>
@@ -69,6 +70,7 @@
                 <tbody>
                   <?php 
                     $visitors->list_visitors();
+                    $visitors->list_employees();
                   ?>
                 </tbody>
               </table>
@@ -79,13 +81,7 @@
 
   <script>
       $(document).ready(function(){
-        $('.del_button').each(function(e){
-          $(this).on('click' , function(e){
-            e.preventDefault();
-            console.log(e);
-          });
-        });
-
+        $("#list_employees").css("display" , "none");
         $('#logout').on('click' , function(e){
           e.preventDefault();
           var donnees ={logout:$(this).text()}
@@ -97,7 +93,21 @@
                 window.location.href=" http://localhost/Vilog/";
             }
           )
-        })
+        });
+
+        $("#visitors").on("click" , function(e){
+          e.preventDefault();
+          $("#list_employees").css("display" , "none");
+          $("#list_visitors").css("display" , "");
+          $("#list_visitors").load(self);
+        });
+
+        $("#employees").on("click" , function(e){
+          e.preventDefault();
+          $("#list_visitors").css("display" , "none");
+          $("#list_employees").css("display" , "");
+        });
+
       })
 
   </script>

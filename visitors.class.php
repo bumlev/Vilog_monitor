@@ -16,6 +16,7 @@ class visitors{
     private $connected;
     private $password;
     private $authenticated;
+    private $qrcode;
     public function __construct($db){
         $this->setdb($db);
     }
@@ -31,6 +32,7 @@ class visitors{
     public function connected(){ return $this->connected ;}
     public function password(){ return $this->password ;}
     public function authenticated(){ return $this->authenticated ;}
+    public function qrcode(){ return $this->qrcode;}
 
     // The Setters 
 
@@ -43,7 +45,8 @@ class visitors{
     public function setdb(PDO $db){ $this->db = $db; }
     public function setconnected($connected){ $this->connected = $connected; }
     public function setpassword($password){ $this->password = $password;}
-    public function setauthenticated($authenticated){ return $this->authenticated = $authenticated ;}
+    public function setauthenticated($authenticated){ $this->authenticated = $authenticated ;}
+    public function setqrcode($qrcode){ $this->qrcode = $qrcode ;}
 
     // create a Visitor
     public function createVisitor(){
@@ -98,7 +101,7 @@ class visitors{
         LEFT JOIN roles as Roles 
         ON Visitors.roleId = Roles.id
         WHERE IdNumber=:idnumber LIMIT 1');
-
+        
         $request->execute(array(
             'idnumber'=>$this->IdNumber()
         ));
@@ -195,13 +198,61 @@ class visitors{
     /// List of visitors
     public function list_visitors(){
         $request = $this->db->prepare('SELECT * FROM visitors as Visitors
-        LEFT JOIN roles as Roles 
-        ON Visitors.roleId = Roles.id
-        LEFT JOIN timesvisit as visits
-        ON Visitors.id = visits.visitor_id
+            LEFT JOIN roles as Roles 
+            ON Visitors.roleId = Roles.id
+            LEFT JOIN timesvisit as visits
+            ON Visitors.id = visits.visitor_id
+            WHERE Roles.name !=:name
         ');
-        $request->execute();
+
+        $request->execute(array('name' => 'Employee'));$i=0;
+        ?>
+            <tbody id="list_visitors">
+        <?php
         while($datas = $request->fetch()){
+            $i++;
+            ?>
+                <tr class="list_visitors">
+                    <td><?php echo $datas['firstname']; ?></td>
+                    <td><?php echo $datas['lastname']; ?></td>
+                    <td><?php echo $datas['name']; ?></td>
+                    <td><?php echo $datas['email']; ?></td>
+                    <td><?php echo $datas['IdNumber']; ?></td>
+                    <td><?php echo $datas['PhoneNumber']; ?></td>
+                    <td><?php echo $datas['created_at']; ?></td>
+                    <td><?php echo $datas['updated_at'] === null ? 'Pending ...' : $datas['updated_at'] ?></td>
+                    <td><a href="edit_visitor.php?id=<?=md5($datas[0])?>" class="edit_button">Edit</a></td><td><button class="del_button">Delete</button></td>
+                </tr>
+            <?php
+        }
+        ?>    
+            </tbody>
+        <?php
+        if($i == 0){
+            ?>
+                <tr>
+                    <td colspan="8" style="text-align:center;">No Visitors found ...</td>
+                </tr> 
+            <?php
+        }
+    }
+
+    // list of employees
+    public function list_employees(){
+        $request = $this->db->prepare('SELECT * FROM visitors as Visitors
+            LEFT JOIN roles as Roles 
+            ON Visitors.roleId = Roles.id
+            LEFT JOIN timesvisit as visits
+            ON Visitors.id = visits.visitor_id
+            WHERE Roles.name =:name
+        ');
+
+        $request->execute(array('name' => 'Employee'));$i=0;
+        ?>
+            <tbody id="list_employees">
+        <?php
+        while($datas = $request->fetch()){
+            $i++;
             ?>
                 <tr>
                     <td><?php echo $datas['firstname']; ?></td>
@@ -214,6 +265,16 @@ class visitors{
                     <td><?php echo $datas['updated_at'] === null ? 'Pending ...' : $datas['updated_at'] ?></td>
                     <td><a href="edit_visitor.php?id=<?=md5($datas[0])?>" class="edit_button">Edit</a></td><td><button class="del_button">Delete</button></td>
                 </tr>
+            <?php
+        }
+        ?>    
+            </tbody>
+        <?php
+        if($i == 0){
+            ?>
+                <tr>
+                    <td colspan="8" style="text-align:center;">No Visitors found ...</td>
+                </tr> 
             <?php
         }
     }
@@ -240,11 +301,12 @@ class visitors{
 
     /// login as user 
     public function login(){
-        $request = $this->db->prepare('SELECT * FROM visitors WHERE email=:email AND password=:password LIMIT 1');
+        $request = $this->db->prepare('SELECT * FROM visitors WHERE md5(email)=md5(:email) AND md5(password)=md5(:password) LIMIT 1');
         $request->execute(array(
             'email'=>$this->email(),
             'password'=>$this->password()
         ));
+
         $datas = $request->fetch();
         $row = $request->rowCount();
         if($row > 0){
@@ -314,6 +376,12 @@ class visitors{
 
     if(isset($_POST['phone'])){
         $visitors->setPhoneNumber($_POST['phone']);
+    }
+
+    if(isset($_POST['qrc']) && !empty($_POST['qrc'])){
+        $visitors->setqrcode($_POST['qrc']);
+    }elseif (isset($_POST['qrc']) && empty($_POST['qrc'])) {
+        $error +=['qrcode' => "qrcode is empty !"];
     }
   
     /// Exection of class functions

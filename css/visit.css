@@ -31,17 +31,28 @@ body {
 .list{
     display: flex;
     list-style-type: none; 
+    width: 400px;
+    justify-content: space-between;
     margin:auto 0;
+    padding:0 5px;
+    color:white;
 }
 
-.nana li:nth-child(2){
-    margin-left: 20px;
+.list a{
+    color: white;
+    text-decoration: none;
 }
 
 .logout{
     color: white;
     text-decoration: none;
     text-transform: uppercase;
+}
+
+.list button{
+    background-color: #079dd8;
+    border:0px;
+    color:white;
 }
 
 .contain{

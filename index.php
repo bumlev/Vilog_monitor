@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <title>Vilog</title>
   </head>
   <body>
@@ -54,7 +56,8 @@
 
           <input  placeholder="Enter Phone Number ..." type="tel" name="phone">
           <span id="error_message" class="error_message">The User already exists !</span>
-          
+          <div id="result"></div>
+          <div id="res"></div>
           <button name="register" id="register" class="register"> Register</button>
           <button  name="present" id="present" class="register"> Present</button>
         </form>
@@ -80,6 +83,7 @@
         $('#signup').hide();
         $("#thank").hide();
         $("#disconnect").hide();
+
         $('#present').on('click' , function(e){
           e.preventDefault();
           var donnees = {
@@ -151,19 +155,17 @@
               phone:$("input[name='phone']").val(),
               register:$("#register").text()
             };
-
             $.post(
               'visitors.class.php',
               donnees,
               function(data){
                 var err = data ? $.parseJSON(data):data;
-                console.log(err);
                 if(err.error){
                   $('#error_firstname').css("display" , "inline").text( err.error.firstname ? err.error.firstname : "");
                   $('#error_lastname').css("display" , "inline").text( err.error.lastname ? err.error.lastname : "");
                   $('#error_email').css("display" , "inline").text( err.error.email ? err.error.email : "");
                   $('#error_role').css("display" , "inline").text( err.error.role ? err.error.role : "");
-                  $("#error_IdNumber").css("display" , "inline").text( err.error.IdNumber ? err.error.IdNumber : "")
+                  $("#error_IdNumber").css("display" , "inline").text( err.error.IdNumber ? err.error.IdNumber : "");
                 }else if(err == true){
                     $("input, textarea , select ").val("");
                     $("span ").text("");
@@ -204,10 +206,6 @@
                 }
               }
             )
-
-            /*$("input, textarea , select ").val("");
-            $('#signin').hide(800);
-            $('#signup').show('slide' , {direction : 'left' } ,900);*/
         });
 
 
