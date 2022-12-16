@@ -29,7 +29,7 @@
         $requet = $this->db->prepare('SELECT * from roles');
         $requet->execute()
         ?>
-         <select name="role" id="role" placeholder="You are ....">
+         <select class="form-select" name="role" id="role">
             <option selected="selected" value="<?php  echo(null); ?>"><?php echo htmlentities('I am  ...') ?></option>
             <?php 
                 while($donnees=$requet->fetch()){

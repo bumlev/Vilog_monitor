@@ -212,7 +212,7 @@ class visitors{
         while($datas = $request->fetch()){
             $i++;
             ?>
-                <tr class="list_visitors">
+                <tr>
                     <td><?php echo $datas['firstname']; ?></td>
                     <td><?php echo $datas['lastname']; ?></td>
                     <td><?php echo $datas['name']; ?></td>
@@ -221,7 +221,6 @@ class visitors{
                     <td><?php echo $datas['PhoneNumber']; ?></td>
                     <td><?php echo $datas['created_at']; ?></td>
                     <td><?php echo $datas['updated_at'] === null ? 'Pending ...' : $datas['updated_at'] ?></td>
-                    <td><a href="edit_visitor.php?id=<?=md5($datas[0])?>" class="edit_button">Edit</a></td><td><button class="del_button">Delete</button></td>
                 </tr>
             <?php
         }
@@ -233,6 +232,60 @@ class visitors{
                 <tr>
                     <td colspan="8" style="text-align:center;">No Visitors found ...</td>
                 </tr> 
+            <?php
+        }
+    }
+
+    /// get numbers of every roles
+    public function countRoles(){
+        $request = $this->db->prepare('SELECT COUNT(*) as nb_role , name FROM roles as Roles
+            LEFT JOIN visitors as Visitors
+            ON Roles.id = Visitors.roleId
+            WHERE Roles.id = Visitors.roleId
+            group by Roles.name
+        ');
+
+        $request->execute();
+        while($datas = $request->fetch()){
+            ?>
+
+            <?php
+                if($datas["name"] == "Visitor"){ 
+            ?>
+                <div style="background-color:#00B4DB" class="count_visitor">
+                    <div class="icon"><i class="fa fa-users"></i></div>
+            <?php
+                }
+            ?>
+
+            <?php
+                if($datas["name"] == "Contractor"){ 
+            ?>
+                <div style="background-color:#FDC830" class="count_visitor">
+                    <div class="icon"><i class="fa fa-address-book"></i></div>
+            <?php
+                }
+            ?>
+
+            <?php
+                if($datas["name"] == "Personal Visitor"){ 
+            ?>
+                <div style="background-color:#65cbf3" class="count_visitor">
+                    <div class="icon"><i class="fa fa-user fa-2x"></i></div>
+            <?php
+                }
+            ?>
+
+            <?php
+                if($datas["name"] == "Employee"){ 
+            ?>
+                <div style="background-color:#005AA7" class="count_visitor">
+                    <div class="icon"><i class="fas fa-id-card"></i></div>
+            <?php
+                }
+            ?>
+                    <div class="number"><span><?=$datas["name"]?></span> <span><?=$datas["nb_role"]?></span></div>
+                </div>
             <?php
         }
     }
@@ -249,7 +302,7 @@ class visitors{
 
         $request->execute(array('name' => 'Employee'));$i=0;
         ?>
-            <tbody id="list_employees">
+            <tbody style="display:none" id="list_employees">
         <?php
         while($datas = $request->fetch()){
             $i++;
@@ -263,7 +316,8 @@ class visitors{
                     <td><?php echo $datas['PhoneNumber']; ?></td>
                     <td><?php echo $datas['created_at']; ?></td>
                     <td><?php echo $datas['updated_at'] === null ? 'Pending ...' : $datas['updated_at'] ?></td>
-                    <td><a href="edit_visitor.php?id=<?=md5($datas[0])?>" class="edit_button">Edit</a></td><td><button class="del_button">Delete</button></td>
+                    <td><a href="edit_visitor.php?id=<?=md5($datas[0])?>" class="edit_button">Edit</a></td>
+                    <td><button class="del_button">Delete</button></td>
                 </tr>
             <?php
         }

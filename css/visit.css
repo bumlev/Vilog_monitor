@@ -70,7 +70,7 @@ body {
 .count_visitor{
     display:flex;
     justify-content: space-between;
-    padding:20px 30px;
+    padding:20px 20px;
     color: white;
 }
 
@@ -80,7 +80,7 @@ body {
 }
 
 .icon i{
-    font-size: 40px;
+    font-size:30px;
 }
 
 .number{
@@ -91,7 +91,7 @@ body {
 }
 
 .number span{
-    font-size: 30px;
+    font-size: 25px;
 }
 
 .number span:nth-child(2){

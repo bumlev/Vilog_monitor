@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="./css/visit.css" />
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
@@ -18,6 +19,8 @@
         <?php 
            include_once 'objet.php';
            include_once 'visitors.class.php';
+           include_once 'roles.class.php';
+           $roles = new roles($db);
         ?>
         <nav class="nana">
               <a class="name_project" href="#"><i class="fa fa-desktop"></i>  ViLog</a>
@@ -35,22 +38,24 @@
         ?>
         <div class="contain">
             <div class="account">
-                <div style="background-color:#00B4DB" class="count_visitor">
-                    <div class="icon"><i class="fa fa-user fa-2x"></i></div>
-                    <div class="number"><span>Visitors</span> <span>1</span></div>
-                </div>
-                <div style="background-color:#FDC830" class="count_visitor">
-                    <div class="icon"><i class="fa fa-user fa-2x"></i></div>
-                    <div class="number"><span>Visitors</span> <span>1</span></div>
-                </div>
-                <div style="background-color:#65cbf3"  class="count_visitor">
-                    <div class="icon"><i class="fa fa-user fa-2x"></i></div>
-                    <div class="number"><span>Visitors</span> <span>1</span></div>
-                </div>
-                <div style="background-color:#005AA7" class="count_visitor">
-                    <div class="icon"><i class="fa fa-user fa-2x"></i></div>
-                    <div class="number"><span>Visitors</span> <span>1</span></div>
-                </div> 
+                <?php $visitors->countRoles(); ?>
+            </div>
+            <div class="row mt-5">
+              <div class="col">
+                <?php 
+                  $roles->selectroles();
+                ?>
+              </div>
+              <div class="col">
+                <input type="date" class="form-control">
+              </div>
+              <div class="col">
+                <input type="date" class="form-control">
+              </div>
+              <div class="col gap-2 mx-auto">
+                <button type="button" class="btn btn-success fw-bolder text-light  px-4">Search</button>
+              </div>
+             
             </div>
 
             <div class="cont_table">
@@ -67,12 +72,10 @@
                     <th scope="col">Time out</th>
                   </tr>
                 </thead>
-                <tbody>
                   <?php 
                     $visitors->list_visitors();
                     $visitors->list_employees();
                   ?>
-                </tbody>
               </table>
             </div>
         </div>
@@ -81,13 +84,12 @@
 
   <script>
       $(document).ready(function(){
-        $("#list_employees").css("display" , "none");
         $('#logout').on('click' , function(e){
           e.preventDefault();
-          var donnees ={logout:$(this).text()}
+          var datas ={logout:$(this).text()}
           $.post(
             'visitors.class.php',
-            donnees,
+            datas,
             function(data){
               if(data)
                 window.location.href=" http://localhost/Vilog/";
@@ -99,7 +101,6 @@
           e.preventDefault();
           $("#list_employees").css("display" , "none");
           $("#list_visitors").css("display" , "");
-          $("#list_visitors").load(self);
         });
 
         $("#employees").on("click" , function(e){
@@ -108,6 +109,5 @@
           $("#list_employees").css("display" , "");
         });
 
-      })
-
+      });
   </script>
