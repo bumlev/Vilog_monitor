@@ -314,7 +314,7 @@ class visitors{
                     <td><?php echo $datas['email']; ?></td>
                     <td><?php echo $datas['IdNumber']; ?></td>
                     <td><?php echo $datas['PhoneNumber']; ?></td>
-                    <td><?php echo $datas['created_at']; ?></td>
+                    <td><?php echo $datas['created_at'] ; ?></td>
                     <td><?php echo $datas['updated_at'] === null ? 'Pending ...' : $datas['updated_at'] ?></td>
                     <td><a href="edit_visitor.php?id=<?=md5($datas[0])?>" class="edit_button">Edit</a></td>
                     <td><button class="del_button">Delete</button></td>
@@ -340,6 +340,26 @@ class visitors{
             'id'=>$id
         ));
         return  $request->fetch();
+    }
+
+    // get a report by role and time for visitore
+    public function report(){
+        $request = $this->db->prepare("SELECT * FROM visitors
+            /*LEFT JOIN roles as Roles
+            ON Visitors.roleId = Roles.id
+            LEFT JOIN timesvisit as visits
+            ON Visitors.id = visits.visitor_id
+            WHERE Roles.id =:roleId
+            AND visits.created_at BETWEEN :arrival_date AND :depart_date*/
+        ");
+
+        $request->execute(
+            /*'arrival_date'=>$arrival_date,
+            'depart_date' =>$depart_date*/
+        );
+
+        $datas = $request->fetch();
+        echo $datas;
     }
 
     //Be a User
@@ -437,6 +457,10 @@ class visitors{
     }elseif (isset($_POST['qrc']) && empty($_POST['qrc'])) {
         $error +=['qrcode' => "qrcode is empty !"];
     }
+
+    if(isset($_POST['from']) && isset($_POST['to']) && empty($_POST['from']) && empty($_POST['to'])){
+        $error +=['report_date' => 'your arrival_date or depart_date is empty'];
+    }
   
     /// Exection of class functions
     if(empty($error) && isset($_POST['register'])){
@@ -445,7 +469,6 @@ class visitors{
     }elseif(empty($error) && isset($_POST['search'])){
 
         $visitors->searchVisitor();
-
     }elseif(empty($error) && isset($_POST['present'])){
 
         $visitors->setconnected(1);
@@ -468,6 +491,8 @@ class visitors{
         $visitors->login();
     }elseif(empty($error) && isset($_POST['logout'])){
         $visitors->logout();
+    }elseif(empty($error) && isset($_POST['search_report'])){
+        $visitors->report();
     }   
     elseif(!empty($error)){
         $Error['error'] = $error;

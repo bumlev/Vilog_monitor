@@ -8,11 +8,12 @@
     <meta name="description" content="Automated System Monitor "/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="./css/visit.css" />
+    <link rel="stylesheet" href="./js/datetimepicker-master/jquery.datetimepicker.css">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
+    <script src="./js/datetimepicker-master/build/jquery.datetimepicker.full.min.js"></script>
     <title>Vilog - List of visitors</title>
   </head>
   <body>
@@ -47,13 +48,15 @@
                 ?>
               </div>
               <div class="col">
-                <input type="date" class="form-control">
+                From
+                <input name="From" type="text" class="form-control">
               </div>
               <div class="col">
-                <input type="date" class="form-control">
+                to
+                <input name="to" type="text" class="form-control">
               </div>
               <div class="col gap-2 mx-auto">
-                <button type="button" class="btn btn-success fw-bolder text-light  px-4">Search</button>
+                <button id="search" type="button" class="btn btn-success fw-bolder text-light  px-4">Search</button>
               </div>
              
             </div>
@@ -84,6 +87,12 @@
 
   <script>
       $(document).ready(function(){
+
+        var from = $("input[name='From']");
+        var to = $("input[name='to']");
+        from.datetimepicker();
+        to.datetimepicker();
+
         $('#logout').on('click' , function(e){
           e.preventDefault();
           var datas ={logout:$(this).text()}
@@ -107,6 +116,19 @@
           e.preventDefault();
           $("#list_visitors").css("display" , "none");
           $("#list_employees").css("display" , "");
+        });
+
+        $("#search").on("click",  function(e){
+          e.preventDefault();
+          var datas = {role : $("#role").val() , from:from.val() };
+          console.log(datas);
+            /*$.post(
+            'visitors.class.php',
+            datas,
+            function(data){
+              console.log(data);
+            }
+          )*/
         });
 
       });
