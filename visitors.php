@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
@@ -58,13 +58,22 @@
               <div class="col gap-2 mx-auto">
                 <button id="search" type="button" class="btn btn-success fw-bolder text-light  px-4">Search</button>
               </div>
+              <div class="col gap-2 mx-auto">
+                <form action="visitors.class.php" method="post">
+                  <input style="display:none" name="role" type="text" class="form-control">
+                  <input style="display:none" name="from_print" type="text" class="form-control">
+                  <input style="display:none;" name="to_print" type="text" class="form-control">
+                  <button id="print" name="print_report" type="submit" class="btn btn-primary fw-bolder text-light  px-4">Print to Pdf</button>
+                </form>
+        
+              </div>
              
             </div>
 
-            <div class="cont_table">
-              <table class="table">
+            <div id="cont_table" class="cont_table">
+            <table id="table" class="table">
                 <thead>
-                  <tr>
+                    <tr>
                     <th scope="col">Firstname</th>
                     <th scope="col">Lastname</th>
                     <th scope="col">Role</th>
@@ -73,25 +82,79 @@
                     <th scope="col">PhoneNumber</th>
                     <th scope="col">Time in</th>
                     <th scope="col">Time out</th>
-                  </tr>
+                    </tr>
                 </thead>
-                  <?php 
-                    $visitors->list_visitors();
-                    $visitors->list_employees();
-                  ?>
-              </table>
+                <?php 
+                $visitors->list_visitors();
+                $visitors->list_employees();
+                ?>
+            </table>
             </div>
         </div>
   </body>
   </html>
-
   <script>
       $(document).ready(function(){
-
         var from = $("input[name='From']");
         var to = $("input[name='to']");
         from.datetimepicker();
         to.datetimepicker();
+        var datas = {visitors:""};
+
+        function get_visitors(){
+          $.post(
+            'visitors.class.php',
+            datas,
+            function(data){
+              data = $.parseJSON(data);
+              $("#list_visitors").html("");
+                for(let i=0; i < data.length;i++){
+                  $("#list_visitors").append("<tr id='visitor_"+ data[i].id+"'><td>"+ data[i].firstname +"</td></tr>");
+                  $("#visitor_"+ data[i].id).append("<td>"+ data[i].lastname +"</td>");
+                  $("#visitor_"+ data[i].id).append("<td>"+ data[i].name +"</td>");
+                  $("#visitor_"+ data[i].id).append("<td>"+ data[i].email +"</td>");
+                  $("#visitor_"+ data[i].id).append("<td>"+ data[i].IdNumber +"</td>");
+                  $("#visitor_"+ data[i].id).append("<td>"+ data[i].PhoneNumber +"</td>");
+                  $("#visitor_"+ data[i].id).append("<td>"+ data[i].created_at +"</td>");
+                  if(data[i].updated_at !== null)
+                    $("#vsitor_"+ data[i].id).append("<td>"+data[i].updated_at +"</td>");
+                  else
+                    $("#visitor_"+ data[i].id).append("<td>Pending ...</td>");
+                }
+                if(data.length == 0)
+                  $("#list_visitors").append("<tr><td colspan='8'style='text-align:center;'>No Visitors found ...</td></tr>");
+            }
+          )
+        }
+        setInterval(function(){get_visitors()} , 1000);
+
+        /*dtas = {employees : ""};
+        function get_employees(){
+          $.post(
+            'visitors.class.php',
+            dtas,
+            function(data){
+              data = $.parseJSON(data);
+              $("#list_employees").html("");
+                for(let i=0; i < data.length;i++){
+                  $("#list_employees").append("<tr id='employee_"+ data[i].id+"'><td>"+ data[i].firstname +"</td></tr>");
+                  $("#employee_"+ data[i].id).append("<td>"+ data[i].lastname +"</td>");
+                  $("#employee_"+ data[i].id).append("<td>"+ data[i].name +"</td>");
+                  $("#employee_"+ data[i].id).append("<td>"+ data[i].email +"</td>");
+                  $("#employee_"+ data[i].id).append("<td>"+ data[i].IdNumber +"</td>");
+                  $("#employee_"+ data[i].id).append("<td>"+ data[i].PhoneNumber +"</td>");
+                  $("#employee_"+ data[i].id).append("<td>"+ data[i].created_at +"</td>");
+                  if(data[i].updated_at !== null)
+                    $("#employee_"+ data[i].id).append("<td>"+data[i].updated_at +"</td>");
+                  else
+                    $("#employee_"+ data[i].id).append("<td>Pending ...</td>");
+                }
+                if(data.length == 0)
+                  $("#list_employees").append("<tr><td colspan='8'style='text-align:center;'>No Visitors found ...</td></tr>");
+            }
+          )
+        }
+        setInterval(function(){get_employees()} , 1000);*/
 
         $('#logout').on('click' , function(e){
           e.preventDefault();
@@ -110,25 +173,51 @@
           e.preventDefault();
           $("#list_employees").css("display" , "none");
           $("#list_visitors").css("display" , "");
+          $("#report").html("");
         });
 
         $("#employees").on("click" , function(e){
           e.preventDefault();
           $("#list_visitors").css("display" , "none");
+          $("#report").html("");
           $("#list_employees").css("display" , "");
         });
 
         $("#search").on("click",  function(e){
           e.preventDefault();
-          var datas = {role : $("#role").val() , from:from.val() };
-          console.log(datas);
-            /*$.post(
-            'visitors.class.php',
-            datas,
-            function(data){
-              console.log(data);
-            }
-          )*/
+          var from = $("input[name='From']").val().replace(/[/_]/g , "-");
+          var to = $("input[name='to']").val().replace(/[/_]/g , "-");
+          var role = $("#role").val();
+          $("input[name='from_print']").val(from);
+          $("input[name='to_print']").val(to);
+          $("input[name='role']").val(role);
+          var datas = {role :role, from : from , to :to , search_report : $("#search").text()};
+            $.post(
+              'visitors.class.php',
+              datas,
+              function(data){
+                data = $.parseJSON(data);
+                $("#list_visitors").css("display" , "none");
+                $("#list_employees").css("display" , "none");
+                $(".table").append("<tbody id='report'></tbody>");
+                $("#report").html("");
+                for(let i=0; i < data.length;i++){
+                  $("#report").append("<tr id='line_"+ data[i].id+"'><td>"+ data[i].firstname +"</td></tr>");
+                  $("#line_"+ data[i].id).append("<td>"+ data[i].lastname +"</td>");
+                  $("#line_"+ data[i].id).append("<td>"+ data[i].name +"</td>");
+                  $("#line_"+ data[i].id).append("<td>"+ data[i].email +"</td>");
+                  $("#line_"+ data[i].id).append("<td>"+ data[i].IdNumber +"</td>");
+                  $("#line_"+ data[i].id).append("<td>"+ data[i].PhoneNumber +"</td>");
+                  $("#line_"+ data[i].id).append("<td>"+ data[i].created_at +"</td>");
+                  if(data[i].updated_at !== null)
+                    $("#line_"+ data[i].id).append("<td>"+data[i].updated_at +"</td>");
+                  else
+                    $("#line_"+ data[i].id).append("<td>Pending ...</td>");
+                }
+                if(data.length == 0)
+                  $("#report").append("<tr><td colspan='8'style='text-align:center;'>No Visitors Found ...</td></tr>");
+              }
+            )
         });
 
       });
