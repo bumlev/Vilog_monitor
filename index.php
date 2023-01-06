@@ -86,7 +86,7 @@
 
         $('#present').on('click' , function(e){
           e.preventDefault();
-          var donnees = {
+          var datas = {
               visitor:$("input[name='visitor']").val(),
               firstname:$("input[name='firstname']").val(), 
               lastname:$("input[name='lastname']").val(), 
@@ -98,9 +98,8 @@
           };
           $.post(
             'visitors.class.php',
-            donnees,
+            datas,
             function(data){
-              console.log(data);
               $('#signup').hide(800);
               $('#thank').show({direction : 'right' } , 900);
             }
@@ -110,10 +109,10 @@
 
         $('#search_id').on('submit' , function(e){
           e.preventDefault();
-          var donnees = {IdNumber : $('#IdNumber_search').val() , search: $('#search_button').text()};
+          var datas = {IdNumber : $('#IdNumber_search').val() , search: $('#search_button').text()};
           $.post(
             'visitors.class.php',
-            donnees,
+            datas,
             function(data){
               var data = data ? $.parseJSON(data):data;
               if(data.error)
@@ -146,7 +145,7 @@
 
         $('#register').on('click' , function(e){
             e.preventDefault();
-            var donnees = {
+            var datas = {
               firstname:$("input[name='firstname']").val(), 
               lastname:$("input[name='lastname']").val(), 
               email:$("input[name='email']").val(), 
@@ -157,7 +156,7 @@
             };
             $.post(
               'visitors.class.php',
-              donnees,
+              datas,
               function(data){
                 var err = data ? $.parseJSON(data):data;
                 if(err.error){
@@ -181,7 +180,7 @@
 
         $('#login').on('click' , function(e){
             e.preventDefault();
-            var donnees ={
+            var datas ={
               email:$("input[name='email_login']").val(),
               password:$("input[name='password_login']").val(),
               login:$("input[name='login']").text()
@@ -189,7 +188,7 @@
 
             $.post(
               'visitors.class.php',
-              donnees,
+              datas,
               function(data){
                 var err = data ? $.parseJSON(data) : data ;
                 if(err.error){
@@ -228,10 +227,10 @@
 
         $("#disconnect").on('click' , function(e){
           e.preventDefault();
-          var donnees = {visitor: $("input[name='visitor']").val() , disconnect: $("#disconnect").text()};
+          var datas = {visitor: $("input[name='visitor']").val() , disconnect: $("#disconnect").text()};
           $.post(
             'visitors.class.php',
-            donnees,
+            datas,
             function(data){
                 $("#disconnect").hide(900);
                 $('input').val("")
