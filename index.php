@@ -191,7 +191,6 @@
               'visitors.class.php',
               donnees,
               function(data){
-                console.log(data);
                 var err = data ? $.parseJSON(data) : data ;
                 if(err.error){
                   $("span").text("");
