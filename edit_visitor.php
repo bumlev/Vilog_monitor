@@ -45,7 +45,7 @@
       $(document).ready(function(){    
         $('#beUser').on('click' , function(e){
             e.preventDefault();
-            var donnees = {
+            var datas = {
               visitor:$("input[name='visitor']").val(),
               password:$("input[name='password']").val(),
               user:$("#user")[0].checked,
@@ -55,7 +55,7 @@
 
             $.post(
               'visitors.class.php',
-              donnees,
+              datas,
               function(data){
                 var err = data ? $.parseJSON(data):data;
                 if(err.error){
