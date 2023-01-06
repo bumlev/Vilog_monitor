@@ -24,7 +24,6 @@ class visitors{
     }
 
     // The Getters
-
     public function firstname(){ return $this->firstname;}
     public function lastname(){ return $this->lastname;}
     public function email(){ return $this->email;}
@@ -37,7 +36,6 @@ class visitors{
     public function qrcode(){ return $this->qrcode;}
 
     // The Setters 
-
     public function setfirstname($firstname){ $this->firstname = $firstname ;}
     public function setlastname($lastname){ $this->lastname = $lastname ;}
     public function setemail($email){ $this->email = $email ;}
@@ -64,8 +62,8 @@ class visitors{
 
         if($row == 0)
         {
-            $date = new DateTime("now", new DateTimeZone('Africa/Kigali'));
-            $actual_date = $date->format('Y-m-d H:i:s');
+            $timestamp = strtotime("-8 hours");
+            $actual_date = date('Y-m-d H:i:s', $timestamp);
             try{
                 $request = $this->db->prepare('INSERT INTO visitors (firstname , lastname , email , roleId , IdNumber , PhoneNumber , connected) VALUES(:firstname , :lastname , :email , :roleId , :IdNumber , :PhoneNumber , :connected)
                 ');
@@ -87,7 +85,7 @@ class visitors{
                     'visitor_id'=> $visitor_id
                 ));
 
-                $body = 'Hi, you are connected';
+                $body = $this->firstname().' '.$this->lastname().' '.' is connected';
                 $this->sendEmail($this->email() , $body);
                 echo json_encode(true);
             }catch(Exception $e){
@@ -115,7 +113,8 @@ class visitors{
 
     // Update a visitor
     public function updateVisitor($id){
-        $actual_date = date('y-m-d h:i:s' , strtotime('now'));
+        $timestamp = strtotime("-8 hours");
+        $actual_date = date('Y-m-d H:i:s', $timestamp);
         $request= $this->db->prepare('UPDATE visitors set firstname=:firstname , lastname=:lastname , email=:email , roleId=:roleId , IdNumber=:idnumb , PhoneNumber=:phone , connected=:connected
          WHERE id=:id');
 
@@ -136,13 +135,14 @@ class visitors{
             'id'=>$id
         ));
 
-        $body = 'Hi, you are connected';
+        $body = $this->firstname().' '.$this->lastname().' '.'is connected';
         $this->sendEmail($this->email() , $body);
     }
 
     /// Disconnect a visitor
     public function disconnect($id){
-        $actual_date = date('y-m-d h:i:s' , strtotime('now'));
+        $timestamp = strtotime("-8 hours");
+        $actual_date = date('Y-m-d H:i:s', $timestamp);
         $request = $this->db->prepare('UPDATE visitors set connected=:connected WHERE id=:id');
         $request->execute(array(
             'connected'=>$this->connected(),
@@ -160,8 +160,9 @@ class visitors{
             'id'=>$id
         ));
 
-        $body = 'Hi, you are deconnected';
+       
         $datas = $request->fetch();
+        $body = $datas["firstname"].' '.$datas['lastname'].' '.'is deconnected';
         $this->sendEmail($datas['email'] , $body);
     }
 
@@ -198,63 +199,57 @@ class visitors{
         require 'PHPMailer-master/src/SMTP.php';
     }
 
-    /// List of visitors
-    public function list_visitors(){
-        $request = $this->db->prepare('SELECT * FROM visitors as Visitors
-            LEFT JOIN roles as Roles 
-            ON Visitors.roleId = Roles.id
-            LEFT JOIN timesvisit as visits
-            ON Visitors.id = visits.visitor_id
-            WHERE Roles.name !=:name AND Visitors.connected =:connected
-        ');
-
-        $request->execute(array('name' => 'Employee' , 'connected'=> 1));
-        $i=0;
-        ?>
-            <tbody id="list_visitors">
-        <?php
-        while($datas = $request->fetch()){
-            $i++;
-            ?>
-                <tr>
-                    <td><?php echo $datas['firstname']; ?></td>
-                    <td><?php echo $datas['lastname']; ?></td>
-                    <td><?php echo $datas['name']; ?></td>
-                    <td><?php echo $datas['email']; ?></td>
-                    <td><?php echo $datas['IdNumber']; ?></td>
-                    <td><?php echo $datas['PhoneNumber']; ?></td>
-                    <td><?php echo $datas['created_at']; ?></td>
-                    <td><?php echo $datas['updated_at'] === null ? 'Pending ...' : $datas['updated_at'] ?></td>
-                </tr>
-            <?php
-        }
-        if($i == 0){
-            ?>
-                <tr>
-                    <td colspan="8" style="text-align:center;">No Visitors found ...</td>
-                </tr> 
-            <?php
-        }
-
-        ?>    
-            </tbody>
-        <?php
-       
-    }
-
     /// load visitors is the same like list_visitors and it is used by jquery
     public function load_visitors(){
+        $timestamp = strtotime("-8 hours");
+        $actual_date = date('Y-m-d H:i:s', $timestamp);
         $request = $this->db->prepare('SELECT * FROM visitors as Visitors
             LEFT JOIN roles as Roles 
             ON Visitors.roleId = Roles.id
             LEFT JOIN timesvisit as visits
             ON Visitors.id = visits.visitor_id
-            WHERE Roles.name !=:name AND Visitors.connected =:connected
+            WHERE Roles.name !=:name 
+            AND DAY(visits.created_at) =:today
+            ORDER BY visits.id
         ');
 
-        $request->execute(array('name' => 'Employee' , 'connected'=> 1));
+        $request->execute(array('name' => 'Employee' , 'today'=> date("d" , strtotime($actual_date))));
         $visitors = $request->fetchAll();
-        echo json_encode($visitors);
+
+        $output.="
+        <thead>
+            <tr>
+            <th scope='col'>Firstname</th>
+            <th scope='col'>Lastname</th>
+            <th scope='col'>Role</th>
+            <th scope='col'>Email</th>
+            <th scope='col'>IdNumber</th>
+            <th scope='col'>PhoneNumber</th>
+            <th scope='col'>Time in</th>
+            <th scope='col'>Time out</th>
+            </tr>
+        </thead>
+        <tbody>";    
+        foreach($visitors as $visitor){
+            $updated_at = $visitor['updated_at'] == NULL ? 'Pending ...' : $visitor['updated_at'];
+            $output .='
+                <tr>
+                    <td>'.$visitor['firstname'].'</td>
+                    <td>'.$visitor['lastname'].'</td>
+                    <td>'.$visitor['name'].'</td>
+                    <td>'.$visitor['email'].'</td>
+                    <td>'.$visitor['IdNumber'].'</td>
+                    <td>'.$visitor['PhoneNumber'].'</td>
+                    <td>'.$visitor['created_at'].'</td>
+                    <td>'.$updated_at.'</td>
+                </tr>';
+        }
+
+        $output .='
+            </tbody>
+        ';
+        echo json_encode($output);
+       
     }
     /// get numbers of every roles
     public function countRoles(){
@@ -310,72 +305,137 @@ class visitors{
         }
     }
 
-    // list of employees
-    public function list_employees(){
-        $request = $this->db->prepare('SELECT * FROM visitors as Visitors
-            LEFT JOIN roles as Roles 
-            ON Visitors.roleId = Roles.id
-            LEFT JOIN timesvisit as visits
-            ON Visitors.id = visits.visitor_id
-            WHERE Roles.name =:name AND  Visitors.connected =:connected
-        ');
+    // search visitor by name 
+    public function searchVisitorByName($name){
+        $pattern =  "%$name%";
+        $request= $this->db->prepare("SELECT * FROM visitors 
+            WHERE CONCAT(firstname , lastname) LIKE ?
+        ");
 
-        $request->execute(array('name' => 'Employee' , 'connected'=> 1));
-        $i=0;
-        ?>
-            <tbody style="display:none" id="list_employees">
-        <?php
-        while($datas = $request->fetch()){
-            $i++;
-            ?>
-                <tr>
-                    <td><?php echo $datas['firstname']; ?></td>
-                    <td><?php echo $datas['lastname']; ?></td>
-                    <td><?php echo $datas['name']; ?></td>
-                    <td><?php echo $datas['email']; ?></td>
-                    <td><?php echo $datas['IdNumber']; ?></td>
-                    <td><?php echo $datas['PhoneNumber']; ?></td>
-                    <td><?php echo $datas['created_at'] ; ?></td>
-                    <td><?php echo $datas['updated_at'] === null ? 'Pending ...' : $datas['updated_at'] ?></td>
-                    <td><a href="edit_visitor.php?id=<?=md5($datas[0])?>" class="edit_button">Edit</a></td>
-                    <td><button class="del_button">Delete</button></td>
-                </tr>
-            <?php
-        }
-        if($i == 0){
-            ?>
-                <tr>
-                    <td colspan="8" style="text-align:center;">No Visitors found ...</td>
-                </tr> 
-            <?php
-        }
-        ?>    
-            </tbody>
-        <?php
+        $request->execute(array($pattern));
+        $visitor = $request->fetchAll();
+        echo empty($name) ? json_encode(false) : json_encode($visitor);
     }
+    
 
     public function load_employees(){
-        $request = $this->db->prepare('SELECT * FROM visitors as Visitors
+        $linesByPage = 2;
+        $pageNow = isset($_GET['page']) ? $_GET['page'] : 1;
+        $x = ($pageNow - 1) * $linesByPage;
+        $y=$linesByPage;
+
+        $timestamp = strtotime("-8 hours");
+        $actual_date = date('Y-m-d H:i:s', $timestamp);
+        $request = $this->db->prepare("SELECT * FROM visitors as Visitors
             LEFT JOIN roles as Roles 
             ON Visitors.roleId = Roles.id
             LEFT JOIN timesvisit as visits
             ON Visitors.id = visits.visitor_id
-            WHERE Roles.name =:name AND  Visitors.connected =:connected
-        ');
+            WHERE Roles.name =:name 
+            AND DAY(visits.created_at) =:today
+            ORDER BY visits.id ASC
+        ");
 
-        $request->execute(array('name' => 'Employee' , 'connected'=> 1));
+        $request->execute(array('name' => 'Employee' , 'today'=> date("d" , strtotime($actual_date))));
         $employees = $request->fetchAll();
 
-        echo json_encode($employees);
+        $output.="
+        <thead>
+            <tr>
+            <th scope='col'>Firstname</th>
+            <th scope='col'>Lastname</th>
+            <th scope='col'>Role</th>
+            <th scope='col'>Email</th>
+            <th scope='col'>IdNumber</th>
+            <th scope='col'>PhoneNumber</th>
+            <th scope='col'>Time in</th>
+            <th scope='col'>Time out</th>
+            <th></th>
+            </tr>
+        </thead>
+        <tbody class='body_tag'>";    
+        foreach($employees as $employee){
+            $updated_at = $employee['updated_at'] == NULL ? 'Pending ...' : $employee['updated_at'];
+            $output .='
+                <tr class="tr_tag">
+                    <td>'.$employee['firstname'].'</td>
+                    <td>'.$employee['lastname'].'</td>
+                    <td>'.$employee['name'].'</td>
+                    <td>'.$employee['email'].'</td>
+                    <td>'.$employee['IdNumber'].'</td>
+                    <td>'.$employee['PhoneNumber'].'</td>
+                    <td>'.$employee['created_at'].'</td>
+                    <td>'.$updated_at.'</td>
+                    <td><a href="edit_visitor.php?id='.md5($employee[0]).'" class="edit_button">Set as a User<a></td>
+                </tr>';
+        }
+
+        $output .='
+            </tbody>
+        ';
+        echo json_encode($output);
     }
 
     //// Get a visitor
-    public function getvisitor($id){
-        $request=$this->db->prepare('SELECT * FROM visitors WHERE md5(id)=:id LIMIT 1');
+    public function getVisitor($id){
+        $request=$this->db->prepare('SELECT * FROM visitors as Visitors 
+        LEFT JOIN roles as Roles
+        ON Visitors.roleId = Roles.id
+        LEFT JOIN timesvisit as visits
+        ON Visitors.id = visits.visitor_id
+        WHERE md5(visits.visitor_id)=:id ORDER BY visits.id DESC LIMIT 1');
         $request->execute(array(
             'id'=>$id
         ));
-        return  $request->fetch();
+        $output.="
+        <thead>
+            <tr>
+            <th scope='col'>Firstname</th>
+            <th scope='col'>Lastname</th>
+            <th scope='col'>Role</th>
+            <th scope='col'>Email</th>
+            <th scope='col'>IdNumber</th>
+            <th scope='col'>PhoneNumber</th>
+            <th scope='col'>Time in</th>
+            <th scope='col'>Time out</th>
+            </tr>
+        </thead>
+        <tbody>";
+
+        $visitor = $request->fetch();
+        $updated_at = $visitor['updated_at'] == NULL ? 'Pending ...' : $visitor['updated_at'];
+        $isEmployee = $visitor['name'] == 'Employee' ? '<td><a href="edit_visitor.php?id='.md5($visitor[0]).'" class="edit_button">Set as a User</a></td>' : "";
+        $output .='
+                <tr>
+                    <td>'.$visitor['firstname'].'</td>
+                    <td>'.$visitor['lastname'].'</td>
+                    <td>'.$visitor['name'].'</td>
+                    <td>'.$visitor['email'].'</td>
+                    <td>'.$visitor['IdNumber'].'</td>
+                    <td>'.$visitor['PhoneNumber'].'</td>
+                    <td>'.$visitor['created_at'].'</td>
+                    <td>'.$updated_at.'</td>
+                    '.$isEmployee.'
+                </tr>';
+                $output .='
+        </tbody>
+        ';
+        echo json_encode($output);
+    }
+
+    /// Identify a visitor
+    public function identifyVisitor($id){
+        $request=$this->db->prepare('SELECT * FROM visitors as Visitors 
+        LEFT JOIN roles as Roles
+        ON Visitors.roleId = Roles.id
+        LEFT JOIN timesvisit as visits
+        ON Visitors.id = visits.visitor_id
+        WHERE md5(visits.visitor_id)=:id ORDER BY visits.id DESC LIMIT 1');
+        $request->execute(array(
+            'id'=>$id
+        ));
+
+        return $request->fetch();
     }
 
     // get a report by role and time for visitore
@@ -396,7 +456,39 @@ class visitors{
         ));
 
         $visitors = $request->fetchAll();
-        echo json_encode($visitors);
+        $output.="
+        <thead>
+            <tr>
+            <th scope='col'>Firstname</th>
+            <th scope='col'>Lastname</th>
+            <th scope='col'>Role</th>
+            <th scope='col'>Email</th>
+            <th scope='col'>IdNumber</th>
+            <th scope='col'>PhoneNumber</th>
+            <th scope='col'>Time in</th>
+            <th scope='col'>Time out</th>
+            </tr>
+        </thead>
+        <tbody>";    
+        foreach($visitors as $visitor){
+            $updated_at = $visitor['updated_at'] == NULL ? 'Pending ...' : $visitor['updated_at'];
+            $output .='
+                <tr>
+                    <td>'.$visitor['firstname'].'</td>
+                    <td>'.$visitor['lastname'].'</td>
+                    <td>'.$visitor['name'].'</td>
+                    <td>'.$visitor['email'].'</td>
+                    <td>'.$visitor['IdNumber'].'</td>
+                    <td>'.$visitor['PhoneNumber'].'</td>
+                    <td>'.$visitor['created_at'].'</td>
+                    <td>'.$updated_at.'</td>
+                </tr>';
+        }
+
+        $output .='
+            </tbody>
+        ';
+        echo json_encode($output);
     }
 
     /// get a print report
@@ -468,6 +560,7 @@ class visitors{
             $_SESSION['id']= $datas['id'];
             $_SESSION['firstname']= $datas['firstname'];
             $_SESSION['lastname']= $datas['lastname'];
+            $_SESSION['authenticated'] = $datas["authenticated"];
             echo json_encode(true);
         }
         else
@@ -480,13 +573,14 @@ class visitors{
         unset($_SESSION['id']);
         unset($_SESSION['firstname']);
         unset($_SESSION['lastname']);
+        unset($_SESSION['authenticated']);
         echo json_encode(true);
     }
 }
 ?>
 
 <?php 
-    include_once 'objet.php';
+    include_once 'database/objet.php';
     $visitors = new visitors($db);
     $error = array();
     $Error = array();
@@ -539,6 +633,15 @@ class visitors{
         $error +=['qrcode' => "qrcode is empty !"];
     }
 
+    if(isset($_POST['user']) && $_POST['user'] == "true"){
+        $visitors->setauthenticated(2);
+    }elseif (isset($_POST['admin']) && $_POST['admin'] == "true"){
+        $visitors->setauthenticated(1);
+    }elseif (isset($_POST['user']) && isset($_POST['admin']) && $_POST['user'] == "false" && $_POST['admin'] == "false" ){
+        $error +=['radio' => "set a user or an admin !"];
+    }
+
+
     if(isset($_POST['from']) && isset($_POST['to']) && empty($_POST['from']) && empty($_POST['to'])){
         $error +=['report_date' => 'your arrival_date or depart_date is empty'];
     }
@@ -546,7 +649,8 @@ class visitors{
     if(isset($_POST['from_print']) && isset($_POST['to_print']) && empty($_POST['from_print']) && empty($_POST['to_print'])){
         $error +=['report_date' => 'your arrival_date or depart_date is empty'];
     }
-  
+
+
     /// Execution of class functions
     if(empty($error) && isset($_POST['register'])){
         $visitors->setconnected(1);
@@ -566,8 +670,6 @@ class visitors{
 
     }elseif(empty($error) && isset($_POST['beUser'])){
 
-        $visitors->setpassword($_POST['password']);
-        $visitors->setauthenticated(2);
         $visitors->BeUser($_POST['visitor']);
     }elseif(empty($error) && isset($_POST['login'])){
 
@@ -587,6 +689,12 @@ class visitors{
     }elseif(isset($_POST['employees'])){
 
         $visitors->load_employees();
+    }elseif(isset($_POST['name_visitor'])){
+
+        $visitors->searchVisitorByName($_POST['name_visitor']);
+    }elseif(isset($_POST['search_visitor'])){
+
+        $visitors->getVisitor($_POST['search_visitor']);
     }    
     elseif(!empty($error)){
         $Error['error'] = $error;

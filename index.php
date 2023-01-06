@@ -18,8 +18,8 @@
   </head>
   <body>
     <?php 
-      include_once 'objet.php';
-      include_once 'roles.class.php';
+      include_once 'database/objet.php';
+      include_once 'roles/roles.class.php';
       $roles = new roles($db);
     ?>
     
@@ -38,7 +38,7 @@
             </div>
         </div>
         <form action="#" id="signup" class="signup" method="post">
-            <h1>Register</h1>
+          <h1>Register</h1>
           <input style="display:none"  placeholder="Enter visitor ..." type="text" name="visitor">
           <input placeholder="Enter firstname ..." type="text" name="firstname">
           <span id="error_firstname" class="error"></span>

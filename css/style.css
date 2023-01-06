@@ -124,7 +124,32 @@ body {
     border-radius: 5px;
 }
 
-.signin input{
+.signin input:nth-child(2){
+    height: 50px;
+    margin-top: 30px;
+    background-color: #13688a;
+    padding-left: 10px;
+    color:white;
+    border:0;
+    border-bottom: 1px solid white;
+    outline: none;
+    font-size: medium;
+    
+}
+.signin input:nth-child(3){
+    height: 50px;
+    margin-top: 30px;
+    background-color: #13688a;
+    padding-left: 10px;
+    color:white;
+    border:0;
+    border-bottom: 1px solid white;
+    outline: none;
+    font-size: medium;
+    
+}
+
+.signin input:nth-child(4){
     height: 50px;
     margin-top: 30px;
     background-color: #13688a;
@@ -140,6 +165,10 @@ body {
 .signin h1{
     color:white;
     text-align: center;
+}
+
+.label1 , .label2{
+    color: white;
 }
 
 

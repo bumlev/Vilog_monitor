@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="Automated System Monitor "/>
-  
     <title>Pdf</title>
   </head>
   <body>
@@ -23,7 +22,7 @@
         }
     </style>
         <h1>List of Visitors</h1>
-        <table class="table">
+        <table class="table table-striped">
             <thead>
                 <th>Firstname</th>
                 <th>Lastname</th>
