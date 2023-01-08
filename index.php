@@ -79,6 +79,7 @@
 
     <script>
       $(document).ready(function(){
+        localStorage.clear();
         $('#signin').hide();
         $('#signup').hide();
         $("#thank").hide();

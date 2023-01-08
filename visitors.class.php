@@ -261,48 +261,35 @@ class visitors{
         ');
 
         $request->execute();
-        while($datas = $request->fetch()){
-            ?>
+        $roles = $request->fetchAll();
 
-            <?php
-                if($datas["name"] == "Visitor"){ 
-            ?>
-                <div style="background-color:#00B4DB" class="count_visitor">
-                    <div class="icon"><i class="fa fa-users"></i></div>
-            <?php
-                }
-            ?>
+        foreach($roles as $role){
+            if($role["name"] == 'Visitor'){
 
-            <?php
-                if($datas["name"] == "Contractor"){ 
-            ?>
-                <div style="background-color:#FDC830" class="count_visitor">
-                    <div class="icon"><i class="fa fa-address-book"></i></div>
-            <?php
-                }
-            ?>
+                $output .='<div style="background-color:#00B4DB" class="count_visitor">
+                            <div class="icon"><i class="fa fa-users"></i></div>
+                        ';
+            }elseif($role["name"] == 'Contractor'){
+                
+                $output .=' <div style="background-color:#FDC830" class="count_visitor">
+                <div class="icon"><i class="fa fa-address-book"></i></div>
+                        ';
+            }elseif($role["name"] == "Personnal Visitor"){
 
-            <?php
-                if($datas["name"] == "Personal Visitor"){ 
-            ?>
-                <div style="background-color:#65cbf3" class="count_visitor">
+                $output .=' <div style="background-color:#65cbf3" class="count_visitor">
                     <div class="icon"><i class="fa fa-user fa-2x"></i></div>
-            <?php
-                }
-            ?>
+                        ';
+            }elseif($role["name"] == "Employee"){
 
-            <?php
-                if($datas["name"] == "Employee"){ 
-            ?>
-                <div style="background-color:#005AA7" class="count_visitor">
-                    <div class="icon"><i class="fas fa-id-card"></i></div>
-            <?php
-                }
-            ?>
-                    <div class="number"><span><?=$datas["name"]?></span> <span><?=$datas["nb_role"]?></span></div>
-                </div>
-            <?php
+                $output .='<div style="background-color:#005AA7" class="count_visitor">
+                <div class="icon"><i class="fas fa-id-card"></i></div>';
+            }
+            
+            $output .=' <div class="number"><span>'.$role["name"].'</span> <span>'.$role["nb_role"].'</span></div>
+            </div>  ';
         }
+
+        echo json_encode($output);
     }
 
     // search visitor by name 
@@ -695,6 +682,9 @@ class visitors{
     }elseif(isset($_POST['search_visitor'])){
 
         $visitors->getVisitor($_POST['search_visitor']);
+    }elseif(isset($_POST['Roles'])){
+
+        $visitors->countRoles();
     }    
     elseif(!empty($error)){
         $Error['error'] = $error;

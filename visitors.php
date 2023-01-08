@@ -45,8 +45,7 @@
           }
         ?>
         <div class="contain">
-            <div class="account">
-                <?php $visitors->countRoles(); ?>
+            <div id="count" class="count">
             </div>
 
             <div class="search_visitor">
@@ -104,9 +103,25 @@
             from.datetimepicker();
             to.datetimepicker();
             var datas = {visitors:""};
+
+            // crypt with md5
             var md5 = function(value) {
               return CryptoJS.MD5(value).toString();
             }
+
+            function countRoles(){
+              $.post(
+                'visitors.class.php',
+                {
+                  Roles:""
+                },
+                function(data){
+                  data = $.parseJSON(data);
+                  $("#count").html(data);
+                }
+              )
+            }
+            setInterval(function(){countRoles()} , 500);
             
             function hide_show(){
               $("#list_employees").css("display" , localStorage.getItem("employees") ? localStorage.getItem("employees"):"");
@@ -166,14 +181,15 @@
             
             $('#logout').on('click' , function(e){
               e.preventDefault();
-              localStorage.clear();
               var datas ={logout:$(this).text()}
               $.post(
                 'visitors.class.php',
                 datas,
                 function(data){
-                  if(data)
+                  if(data){
                     window.location.href=" http://localhost/Vilog/";
+                  }
+                    
                 }
               )
             });
